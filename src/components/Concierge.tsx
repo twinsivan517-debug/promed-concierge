@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import photo from "@/assets/akanksha.webp";
+import { DoctorAvatar, type Line } from "@/components/DoctorAvatar";
+import { InfoCard } from "@/components/InfoCard";
 import { ANSWERS, CLINIC, type Answer } from "@/lib/answers";
-import { FloatingAvatar, type Line } from "@/components/FloatingAvatar";
 import { match, type Reply } from "@/lib/match";
-import { BASE_PATH } from "@/lib/site";
 
-type Message = { id: number; from: "patient" | "clinic"; text: string; reply?: Reply };
+const GREETING_TEXT = "Hi! I'm here to help. Tap a question, or ask me anything about your treatment.";
+const ADVICE_TEXT = "That one needs the doctor to see you in person, so I can't answer it here. A free consultation is the right place.";
+const UNKNOWN_TEXT = "I don't have an answer for that yet. Try one of these, or ask the clinic directly.";
+const CHOOSE_TEXT = "Did you mean one of these?";
 
-const GREETING_TEXT = `Hello, I'm the ${CLINIC.name} concierge. Ask me about prices, results, the consultation or where we are. I answer only from a fixed list of the clinic's answers, written from its own website and waiting for the doctor's review.`;
-const ADVICE_TEXT = `That one needs the doctor to see you in person, so I can't answer it here. A consultation is the right place: book one below, or message the clinic on WhatsApp.`;
-const UNKNOWN_TEXT = `I don't have an approved answer for that yet. Try one of these questions, or ask the clinic directly.`;
+const POKES: Line["mood"][] = ["hop", "hop", "hop", "hop", "shake", "shake"];
+const POKE_TEXT = [
+  "Hi there! 😊 Tap a question and I'll explain.",
+  "Yes? I'm listening!",
+  "Hehe, that tickles! 😄",
+  "Okay, okay… what would you like to know?",
+  "Hey! I'm a doctor, not a button! 😤",
+  "Fine… I'll just stand here then. 🙄",
+];
+const SUGGESTIONS = ANSWERS.slice(0, 4);
 
 function whatsappLink(text: string) {
   return CLINIC.whatsapp ? `https://wa.me/${CLINIC.whatsapp}?text=${encodeURIComponent(text)}` : null;
@@ -19,55 +28,20 @@ function whatsappLink(text: string) {
 
 function replyText(reply: Reply) {
   if (reply.kind === "answer") return reply.answer.answer;
-  if (reply.kind === "choose") return "Did you mean one of these?";
+  if (reply.kind === "choose") return CHOOSE_TEXT;
   if (reply.kind === "advice") return ADVICE_TEXT;
   if (reply.kind === "greeting") return GREETING_TEXT;
   return UNKNOWN_TEXT;
 }
 
-function Clip({ answer }: { answer: Answer }) {
-  const video = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    video.current?.play().catch(() => {});
-  }, [answer]);
-
-  if (answer.clip) {
-    return (
-      <div className="relative">
-        <video
-          ref={video}
-          key={answer.id}
-          src={`${BASE_PATH}/${answer.clip}`}
-          poster={photo.src}
-          controls
-          playsInline
-          preload="metadata"
-          aria-label={`Video answer: ${answer.question}`}
-          className="aspect-[4/5] w-full rounded-3xl bg-panel object-cover"
-        />
-      </div>
-    );
-  }
-  return null;
-}
-
 export function Concierge() {
-  const [current, setCurrent] = useState<Answer>(ANSWERS[0]);
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 0, from: "clinic", text: GREETING_TEXT, reply: { kind: "greeting" } },
-  ]);
+  const [reply, setReply] = useState<Reply | null>(null);
+  const [line, setLine] = useState<Line>({ id: 1, text: GREETING_TEXT });
   const [draft, setDraft] = useState("");
-  const [line, setLine] = useState<Line | null>(null);
-  const thread = useRef<HTMLDivElement>(null);
-  const player = useRef<HTMLDivElement>(null);
   const booking = useRef<HTMLDialogElement>(null);
   const chips = useRef<HTMLUListElement>(null);
-
-  useEffect(() => {
-    const box = thread.current;
-    if (box) box.scrollTop = box.scrollHeight;
-  }, [messages]);
+  const pokes = useRef({ count: 0, at: 0 });
+  const current = reply?.kind === "answer" ? reply.answer.id : null;
 
   useEffect(() => {
     const row = chips.current;
@@ -75,23 +49,24 @@ export function Concierge() {
     if (row && chip) row.scrollTo({ left: chip.offsetLeft - row.offsetLeft - 20, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [current]);
 
-  function ask(text: string, reply: Reply = match(text)) {
-    setMessages((list) => [
-      ...list,
-      { id: list.length, from: "patient", text },
-      { id: list.length + 1, from: "clinic", text: replyText(reply), reply },
-    ]);
-    setLine((previous) => ({ id: (previous?.id ?? 0) + 1, text: replyText(reply) }));
-    if (reply.kind === "answer") setCurrent(reply.answer);
+  function say(text: string, mood?: Line["mood"]) {
+    setLine((previous) => ({ id: previous.id + 1, text, mood }));
+  }
+
+  function ask(text: string, next: Reply = match(text)) {
+    setReply(next);
+    say(replyText(next));
   }
 
   function pick(answer: Answer) {
     ask(answer.question, { kind: "answer", answer });
   }
 
-  function watch(answer: Answer) {
-    setCurrent(answer);
-    player.current?.scrollIntoView({ block: "start" });
+  function poke() {
+    const now = Date.now();
+    const count = now - pokes.current.at > 8000 ? 0 : Math.min(pokes.current.count + 1, POKE_TEXT.length - 1);
+    pokes.current = { count, at: now };
+    say(POKE_TEXT[count], POKES[count]);
   }
 
   function submit(event: FormEvent) {
@@ -106,100 +81,56 @@ export function Concierge() {
 
   return (
     <>
-      <section ref={player} aria-label="Video answers" className="scroll-mt-4">
-        <Clip answer={current} />
-        <ul ref={chips} className="-mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-2" aria-label="Questions patients ask">
-          {ANSWERS.map((answer) => (
-            <li key={answer.id} className="shrink-0">
-              <button
-                type="button"
-                onClick={() => pick(answer)}
-                aria-pressed={answer.id === current.id}
-                className="rounded-full border border-pink/30 px-4 py-2 text-sm font-medium text-pink aria-pressed:border-pink-deep aria-pressed:bg-pink-deep aria-pressed:text-ink"
-              >
-                {answer.short}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-label="Ask the concierge" className="mt-8 rounded-3xl bg-panel p-4">
-        <div ref={thread} className="flex max-h-[26rem] flex-col gap-3 overflow-y-auto" aria-live="polite">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={
-                message.from === "patient"
-                  ? "max-w-[85%] self-end rounded-2xl rounded-br-sm bg-pink px-4 py-3 text-ink"
-                  : "max-w-[90%] self-start rounded-2xl rounded-bl-sm bg-ground px-4 py-3 text-white"
-              }
+      <ul ref={chips} className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-2" aria-label="Questions patients ask">
+        {ANSWERS.map((answer) => (
+          <li key={answer.id} className="shrink-0">
+            <button
+              type="button"
+              onClick={() => pick(answer)}
+              aria-pressed={answer.id === current}
+              className="rounded-full border border-pink/30 px-4 py-2 text-sm font-medium text-pink aria-pressed:border-pink-deep aria-pressed:bg-pink-deep aria-pressed:text-ink"
             >
-              <p className="leading-relaxed">{message.text}</p>
-              {message.reply?.kind === "answer" && (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => watch(message.reply!.kind === "answer" ? message.reply!.answer : current)}
-                    className="rounded-full bg-pink-deep px-3 py-1.5 text-sm font-semibold text-ink"
-                  >
-                    Watch the answer
-                  </button>
-                  {message.reply.answer.draft && (
-                    <span className="text-xs text-muted">Draft, awaiting the doctor&apos;s approval</span>
-                  )}
-                </div>
-              )}
-              {(message.reply?.kind === "choose" || message.reply?.kind === "unknown") && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {(message.reply.kind === "choose" ? message.reply.options : ANSWERS.slice(0, 4)).map((answer) => (
-                    <button
-                      key={answer.id}
-                      type="button"
-                      onClick={() => pick(answer)}
-                      className="rounded-full border border-pink/30 px-3 py-1.5 text-sm font-medium text-pink"
-                    >
-                      {answer.short}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {message.reply?.kind === "advice" && (
-                <button
-                  type="button"
-                  onClick={() => booking.current?.showModal()}
-                  className="mt-3 rounded-full bg-pink-deep px-3 py-1.5 text-sm font-semibold text-ink"
-                >
-                  Book a consultation
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+              {answer.short}
+            </button>
+          </li>
+        ))}
+      </ul>
 
-        <form onSubmit={submit} className="mt-4 flex gap-2">
-          <label htmlFor="ask" className="sr-only">
-            Your question
-          </label>
-          <input
-            id="ask"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="Ask a question…"
-            autoComplete="off"
-            enterKeyHint="send"
-            maxLength={200}
-            className="min-w-0 flex-1 rounded-full border border-navy/20 bg-white px-4 py-3 text-base text-ink"
-          />
-          <button type="submit" className="rounded-full bg-pink px-5 py-3 text-base font-semibold text-ink">
-            Ask
-          </button>
-        </form>
-        <p className="mt-3 text-xs leading-relaxed text-muted">
-          The concierge answers only from a fixed list of the clinic&apos;s answers and never gives medical advice. Nothing you type
-          here is saved or sent.
-        </p>
+      <section aria-label="Your concierge" className="mt-5 grid grid-cols-[38%_1fr] items-start gap-3">
+        <div className="sticky top-3">
+          <DoctorAvatar line={line} onPoke={poke} />
+        </div>
+        <div className="min-w-0 space-y-3">
+          <div aria-live="polite" className="relative rounded-2xl rounded-tl-sm bg-pink px-4 py-3 text-ink shadow-lg">
+            <span className="mb-1 block text-xs font-bold">Dr. Akanksha</span>
+            <p className="text-sm leading-snug">{line.text}</p>
+          </div>
+          <InfoCard reply={reply} onPick={pick} onBook={() => booking.current?.showModal()} suggestions={SUGGESTIONS} />
+        </div>
       </section>
+
+      <form onSubmit={submit} className="mt-6 flex gap-2">
+        <label htmlFor="ask" className="sr-only">
+          Your question
+        </label>
+        <input
+          id="ask"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="Ask a question…"
+          autoComplete="off"
+          enterKeyHint="send"
+          maxLength={200}
+          className="min-w-0 flex-1 rounded-full border border-navy/20 bg-white px-4 py-3 text-base text-ink"
+        />
+        <button type="submit" className="rounded-full bg-pink px-5 py-3 text-base font-semibold text-ink">
+          Ask
+        </button>
+      </form>
+      <p className="mt-3 text-xs leading-relaxed text-muted">
+        The concierge answers only from a fixed list of the clinic&apos;s answers and never gives medical advice. Nothing you type
+        here is saved or sent.
+      </p>
 
       <div className="sticky bottom-0 -mx-5 mt-8 flex gap-3 border-t border-pink/15 bg-ground/95 px-5 py-3 backdrop-blur">
         <button
@@ -217,7 +148,6 @@ export function Concierge() {
       </div>
 
       <Booking dialog={booking} />
-      <FloatingAvatar line={line} />
     </>
   );
 }

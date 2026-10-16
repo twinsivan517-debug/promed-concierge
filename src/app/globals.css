@@ -45,3 +45,32 @@ body {
   color: #ffffff;
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+body {
+  overflow-x: clip;
+}
+
+@keyframes avatar-hop {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-16px) scale(1.03); }
+  55% { transform: translateY(0); }
+  75% { transform: translateY(-6px); }
+}
+
+@keyframes avatar-shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-7px) rotate(-3deg); }
+  40% { transform: translateX(7px) rotate(3deg); }
+  60% { transform: translateX(-5px) rotate(-2deg); }
+  80% { transform: translateX(5px) rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .avatar-hop canvas {
+    animation: avatar-hop 0.6s ease-out;
+  }
+
+  .avatar-shake canvas {
+    animation: avatar-shake 0.5s ease-in-out;
+  }
+}
