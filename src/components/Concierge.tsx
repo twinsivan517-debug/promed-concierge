@@ -6,7 +6,7 @@ import { match, type Reply } from "@/lib/match";
 
 type Message = { id: number; from: "patient" | "clinic"; text: string; reply?: Reply };
 
-const GREETING_TEXT = `Hello, I'm the ${CLINIC.name} concierge. Ask me about prices, results, the consultation or where we are. I answer from the clinic's own approved answers.`;
+const GREETING_TEXT = `Hello, I'm the ${CLINIC.name} concierge. Ask me about prices, results, the consultation or where we are. I answer only from a fixed list of the clinic's answers, written from its own website and waiting for the doctor's review.`;
 const ADVICE_TEXT = `That one needs the doctor to see you in person, so I can't answer it here. A consultation is the right place: book one below, or message the clinic on WhatsApp.`;
 const UNKNOWN_TEXT = `I don't have an approved answer for that yet. Try one of these questions, or ask the clinic directly.`;
 
@@ -188,7 +188,7 @@ export function Concierge() {
           </button>
         </form>
         <p className="mt-3 text-xs leading-relaxed text-muted">
-          The concierge answers only from the clinic&apos;s approved list and never gives medical advice. Nothing you type
+          The concierge answers only from a fixed list of the clinic&apos;s answers and never gives medical advice. Nothing you type
           here is saved or sent.
         </p>
       </section>

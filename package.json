@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning src/lib/match.test.ts",
     "prepare": "node scripts/arm-hooks.mjs"
   },
   "dependencies": {
