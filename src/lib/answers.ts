@@ -40,7 +40,7 @@ export const ANSWERS: Answer[] = [
     keywords: ["botox", "anti wrinkle", "wrinkle", "forehead", "crow's feet", "crows feet", "lip flip", "wear off", "permanent", "last", "lasting"],
     source: `${SITE}/services/forehead-crowsfeet (FAQ; the same page's card says 4-6 months: the doctor picks one)`,
     draft: true,
-    clip: "clips/botox-duration.mp4",
+    clip: null,
   },
   {
     id: "natural",
