@@ -1,7 +1,8 @@
-/* Serves out/ under the base path as GitHub Pages does, and sends "/" there. Usage: node scripts/serve-out.mjs -p 3000 */
+/* Serves out/ under the base path as GitHub Pages does, gzip on text as Pages does, and sends "/" there. Usage: node scripts/serve-out.mjs -p 3000 */
 import { createReadStream, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
+import { createGzip } from "node:zlib";
 
 const BASE = "/promed-concierge";
 const ROOT = resolve("out");
@@ -18,6 +19,8 @@ const TYPES = {
   ".woff2": "font/woff2",
   ".mp4": "video/mp4",
 };
+
+const PACKED = new Set([".html", ".js", ".css", ".json", ".txt", ".xml", ".ico"]);
 
 const flag = process.argv.indexOf("-p");
 const port = Number(flag > -1 ? process.argv[flag + 1] : 3000);
@@ -44,6 +47,9 @@ createServer((req, res) => {
   const inside = url.startsWith(`${BASE}/`) ? normalize(join(ROOT, url.slice(BASE.length))) : null;
   const found = inside && inside.startsWith(ROOT) ? file(inside) : null;
   const path = found ?? join(ROOT, "404.html");
-  res.writeHead(found ? 200 : 404, { "content-type": TYPES[extname(path)] ?? "application/octet-stream" });
-  createReadStream(path).pipe(res);
+  const type = TYPES[extname(path)] ?? "application/octet-stream";
+  const gzip = PACKED.has(extname(path)) && /gzip/.test(req.headers["accept-encoding"] ?? "");
+  res.writeHead(found ? 200 : 404, gzip ? { "content-type": type, "content-encoding": "gzip", vary: "accept-encoding" } : { "content-type": type });
+  const body = createReadStream(path);
+  (gzip ? body.pipe(createGzip()) : body).pipe(res);
 }).listen(port, "127.0.0.1", () => console.log(`http://127.0.0.1:${port}${BASE}/`));
