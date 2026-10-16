@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import photo from "@/assets/akanksha.webp";
 import { ANSWERS, CLINIC, type Answer } from "@/lib/answers";
+import { Avatar } from "@/components/Avatar";
 import { match, type Reply } from "@/lib/match";
 import { BASE_PATH } from "@/lib/site";
 
@@ -50,28 +50,13 @@ function Clip({ answer }: { answer: Answer }) {
     );
   }
   return (
-    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-panel">
-      <Image
-        src={photo}
-        alt={`${CLINIC.doctor} at ${CLINIC.name}`}
-        fill
-        sizes="(max-width: 512px) 100vw, 472px"
-        loading="eager"
-        fetchPriority="high"
-        className="object-cover object-[50%_30%]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-ground via-ground/30 to-transparent" />
-      <span className="absolute left-4 top-4 rounded-full bg-ground/70 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-pink">
-        Video coming soon
-      </span>
-      <div className="absolute inset-x-0 bottom-0 p-6">
-        <span className="flex items-center gap-3 text-sm font-medium text-pink">
-          <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-pink pl-0.5 text-base text-ink">
-            ▶
-          </span>
-          {CLINIC.doctor} answers
-        </span>
-        <p className="mt-1 text-2xl font-semibold leading-snug text-white">{answer.question}</p>
+    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-gradient-to-b from-[#fbe3e7] to-[#f3c9d0]">
+      <div className="absolute inset-x-0 bottom-0 h-[22%] bg-[#ead1d6]" />
+      <div className="absolute inset-x-0 bottom-[6%] top-[8%] flex justify-center">
+        <Avatar speaking={false} walking={false} />
+      </div>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ground/90 to-transparent p-5 pt-10">
+        <p className="text-lg font-semibold leading-snug text-white">{answer.question}</p>
       </div>
     </div>
   );
