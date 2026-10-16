@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: { title: SITE.name, description: SITE.description, url: SITE.url, type: "website" },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1b2a6b" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#132349" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

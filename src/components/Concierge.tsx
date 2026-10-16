@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ANSWERS, CLINIC, type Answer } from "@/lib/answers";
 import { match, type Reply } from "@/lib/match";
@@ -28,20 +29,38 @@ function Clip({ answer }: { answer: Answer }) {
       <video
         key={answer.id}
         src={answer.clip}
+        poster="/akanksha.webp"
         controls
         playsInline
         preload="metadata"
-        className="aspect-[4/5] w-full rounded-3xl bg-navy object-cover"
+        className="aspect-[4/5] w-full rounded-3xl bg-panel object-cover"
       />
     );
   }
   return (
-    <div className="relative flex aspect-[4/5] w-full flex-col justify-end overflow-hidden rounded-3xl bg-gradient-to-br from-navy via-navy to-magenta p-6 text-white">
-      <span className="absolute left-5 top-5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-panel">
+      <Image
+        src="/akanksha.webp"
+        alt={`${CLINIC.doctor} at ${CLINIC.name}`}
+        fill
+        sizes="(max-width: 512px) 100vw, 472px"
+        loading="eager"
+        fetchPriority="high"
+        className="object-cover object-[50%_30%]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-ground via-ground/30 to-transparent" />
+      <span className="absolute left-4 top-4 rounded-full bg-ground/70 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-pink">
         Video coming soon
       </span>
-      <span className="text-sm font-medium text-blush">{CLINIC.doctor} answers</span>
-      <p className="mt-2 text-2xl font-semibold leading-snug">{answer.question}</p>
+      <div className="absolute inset-x-0 bottom-0 p-6">
+        <span className="flex items-center gap-3 text-sm font-medium text-pink">
+          <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-pink pl-0.5 text-base text-ink">
+            ▶
+          </span>
+          {CLINIC.doctor} answers
+        </span>
+        <p className="mt-1 text-2xl font-semibold leading-snug text-white">{answer.question}</p>
+      </div>
     </div>
   );
 }
@@ -107,7 +126,7 @@ export function Concierge() {
                 type="button"
                 onClick={() => pick(answer)}
                 aria-pressed={answer.id === current.id}
-                className="rounded-full border border-navy/20 px-4 py-2 text-sm font-medium text-navy aria-pressed:border-magenta aria-pressed:bg-magenta aria-pressed:text-white"
+                className="rounded-full border border-pink/30 px-4 py-2 text-sm font-medium text-pink aria-pressed:border-pink-deep aria-pressed:bg-pink-deep aria-pressed:text-ink"
               >
                 {answer.short}
               </button>
@@ -116,15 +135,15 @@ export function Concierge() {
         </ul>
       </section>
 
-      <section aria-label="Ask the concierge" className="mt-8 rounded-3xl bg-blush p-4">
+      <section aria-label="Ask the concierge" className="mt-8 rounded-3xl bg-panel p-4">
         <div ref={thread} className="flex max-h-[26rem] flex-col gap-3 overflow-y-auto" aria-live="polite">
           {messages.map((message) => (
             <div
               key={message.id}
               className={
                 message.from === "patient"
-                  ? "max-w-[85%] self-end rounded-2xl rounded-br-sm bg-navy px-4 py-3 text-white"
-                  : "max-w-[90%] self-start rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-ink"
+                  ? "max-w-[85%] self-end rounded-2xl rounded-br-sm bg-pink px-4 py-3 text-ink"
+                  : "max-w-[90%] self-start rounded-2xl rounded-bl-sm bg-ground px-4 py-3 text-white"
               }
             >
               <p className="leading-relaxed">{message.text}</p>
@@ -133,7 +152,7 @@ export function Concierge() {
                   <button
                     type="button"
                     onClick={() => watch(message.reply!.kind === "answer" ? message.reply!.answer : current)}
-                    className="rounded-full bg-magenta px-3 py-1.5 text-sm font-semibold text-white"
+                    className="rounded-full bg-pink-deep px-3 py-1.5 text-sm font-semibold text-ink"
                   >
                     Watch the answer
                   </button>
@@ -149,7 +168,7 @@ export function Concierge() {
                       key={answer.id}
                       type="button"
                       onClick={() => pick(answer)}
-                      className="rounded-full border border-navy/20 px-3 py-1.5 text-sm font-medium text-navy"
+                      className="rounded-full border border-pink/30 px-3 py-1.5 text-sm font-medium text-pink"
                     >
                       {answer.short}
                     </button>
@@ -160,7 +179,7 @@ export function Concierge() {
                 <button
                   type="button"
                   onClick={() => booking.current?.showModal()}
-                  className="mt-3 rounded-full bg-magenta px-3 py-1.5 text-sm font-semibold text-white"
+                  className="mt-3 rounded-full bg-pink-deep px-3 py-1.5 text-sm font-semibold text-ink"
                 >
                   Book a consultation
                 </button>
@@ -183,7 +202,7 @@ export function Concierge() {
             maxLength={200}
             className="min-w-0 flex-1 rounded-full border border-navy/20 bg-white px-4 py-3 text-base text-ink"
           />
-          <button type="submit" className="rounded-full bg-navy px-5 py-3 text-base font-semibold text-white">
+          <button type="submit" className="rounded-full bg-pink px-5 py-3 text-base font-semibold text-ink">
             Ask
           </button>
         </form>
@@ -193,16 +212,16 @@ export function Concierge() {
         </p>
       </section>
 
-      <div className="sticky bottom-0 -mx-5 mt-8 flex gap-3 border-t border-navy/10 bg-white/95 px-5 py-3 backdrop-blur">
+      <div className="sticky bottom-0 -mx-5 mt-8 flex gap-3 border-t border-pink/15 bg-ground/95 px-5 py-3 backdrop-blur">
         <button
           type="button"
           onClick={() => booking.current?.showModal()}
-          className="flex-1 rounded-full bg-magenta px-4 py-3 text-base font-semibold text-white"
+          className="flex-1 rounded-full bg-pink-deep px-4 py-3 text-base font-semibold text-ink"
         >
           Book a consultation
         </button>
         {chat && (
-          <a href={chat} target="_blank" rel="noopener" className="rounded-full border-2 border-navy px-4 py-3 text-base font-semibold text-navy">
+          <a href={chat} target="_blank" rel="noopener" className="rounded-full border-2 border-pink px-4 py-3 text-base font-semibold text-pink">
             WhatsApp
           </a>
         )}
@@ -234,19 +253,19 @@ function Booking({ dialog }: { dialog: React.RefObject<HTMLDialogElement | null>
     <dialog
       ref={dialog}
       aria-labelledby="booking-title"
-      className="m-auto w-[min(26rem,calc(100%-2.5rem))] rounded-3xl p-6 text-ink backdrop:bg-navy/60"
+      className="m-auto w-[min(26rem,calc(100%-2.5rem))] rounded-3xl bg-white p-6 text-ink backdrop:bg-ground/70"
     >
       <h2 id="booking-title" className="text-xl font-semibold text-navy">
         Book a consultation
       </h2>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
+      <p className="mt-2 text-sm leading-relaxed text-slate">
         Two details only. This opens WhatsApp with your message written; you press send. Nothing is stored on this
         page.
       </p>
       <form onSubmit={submit} noValidate className="mt-5 flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm font-medium">
           Name
-          <input name="name" autoComplete="name" required className="rounded-xl border border-navy/25 px-4 py-3 text-base" />
+          <input name="name" autoComplete="name" required className="rounded-xl border border-navy/25 bg-white px-4 py-3 text-base" />
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium">
           Phone
@@ -256,15 +275,15 @@ function Booking({ dialog }: { dialog: React.RefObject<HTMLDialogElement | null>
             inputMode="tel"
             autoComplete="tel"
             required
-            className="rounded-xl border border-navy/25 px-4 py-3 text-base"
+            className="rounded-xl border border-navy/25 bg-white px-4 py-3 text-base"
           />
         </label>
         {error && (
-          <p role="alert" className="text-sm font-medium text-magenta-ink">
+          <p role="alert" className="text-sm font-medium text-rose">
             {error}
           </p>
         )}
-        <button type="submit" className="rounded-full bg-magenta px-4 py-3 text-base font-semibold text-white">
+        <button type="submit" className="rounded-full bg-pink-deep px-4 py-3 text-base font-semibold text-ink">
           Continue on WhatsApp
         </button>
         <button type="button" onClick={() => dialog.current?.close()} className="text-sm font-medium text-navy underline">
