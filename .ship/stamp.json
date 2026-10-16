@@ -1,5 +1,5 @@
 {
-  "commit": "4f1d33e67d3281301f811b320ea39a10747532a4",
+  "commit": "d0fa786874b60137955eda4429c7d832c5fce207",
   "tier": "static",
   "scores": {
     "performance": 97,
@@ -7,7 +7,7 @@
     "best-practices": 100,
     "seo": 100
   },
-  "bytes": 213012,
+  "bytes": 252495,
   "story_bytes": 0,
-  "at": "2026-10-16T08:23:44Z"
+  "at": "2026-10-16T08:36:41Z"
 }
