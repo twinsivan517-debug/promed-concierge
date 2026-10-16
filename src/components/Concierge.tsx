@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import photo from "@/assets/akanksha.webp";
 import { ANSWERS, CLINIC, type Answer } from "@/lib/answers";
-import { Avatar } from "@/components/Avatar";
+import { FloatingAvatar, type Line } from "@/components/FloatingAvatar";
 import { match, type Reply } from "@/lib/match";
 import { BASE_PATH } from "@/lib/site";
 
@@ -49,17 +49,7 @@ function Clip({ answer }: { answer: Answer }) {
       </div>
     );
   }
-  return (
-    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-gradient-to-b from-[#fbe3e7] to-[#f3c9d0]">
-      <div className="absolute inset-x-0 bottom-0 h-[22%] bg-[#ead1d6]" />
-      <div className="absolute inset-x-0 bottom-[6%] top-[8%] flex justify-center">
-        <Avatar speaking={false} walking={false} />
-      </div>
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ground/90 to-transparent p-5 pt-10">
-        <p className="text-lg font-semibold leading-snug text-white">{answer.question}</p>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export function Concierge() {
@@ -68,6 +58,7 @@ export function Concierge() {
     { id: 0, from: "clinic", text: GREETING_TEXT, reply: { kind: "greeting" } },
   ]);
   const [draft, setDraft] = useState("");
+  const [line, setLine] = useState<Line | null>(null);
   const thread = useRef<HTMLDivElement>(null);
   const player = useRef<HTMLDivElement>(null);
   const booking = useRef<HTMLDialogElement>(null);
@@ -90,6 +81,7 @@ export function Concierge() {
       { id: list.length, from: "patient", text },
       { id: list.length + 1, from: "clinic", text: replyText(reply), reply },
     ]);
+    setLine((previous) => ({ id: (previous?.id ?? 0) + 1, text: replyText(reply) }));
     if (reply.kind === "answer") setCurrent(reply.answer);
   }
 
@@ -225,6 +217,7 @@ export function Concierge() {
       </div>
 
       <Booking dialog={booking} />
+      <FloatingAvatar line={line} />
     </>
   );
 }

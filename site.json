@@ -1,6 +1,6 @@
 {
   "name": "Promed Aesthetics",
-  "tier": "static",
+  "tier": "motion",
   "url": "https://twinsivan517-debug.github.io/promed-concierge",
   "description": "Short video answers from the doctor to the questions patients ask most, and a concierge that books you in on WhatsApp.",
   "email": "hello@example.com"

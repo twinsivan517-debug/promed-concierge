@@ -11,6 +11,10 @@ WhatsApp message the patient sends. No server, no stored data, no running cost. 
   and a `draft` flag; `clip` holds a video path once the real clips arrive.
 - `src/lib/match.ts` — how a typed question finds its answer, and the medical-advice catch.
 - `src/components/Concierge.tsx` — the player, the chat and the booking form.
+- `src/components/FloatingAvatar.tsx` — the illustrated doctor who walks over the page and
+  speaks each reply in a bubble. Three green-screen loops in `public/avatar/` (walk, idle,
+  talk; generated, 232 KB together), keyed out in the browser on a canvas so every phone
+  shows her without a transparent-video format. Stands still for reduced motion.
 - `src/lib/match.test.ts` — `npm test`: 53 real questions, medical ones must reach the doctor
   hand-off. Run it after any change to the answers or the matcher.
 
