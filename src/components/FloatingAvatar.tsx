@@ -48,6 +48,7 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
   const [walking, setWalking] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const still = useRef(false);
+  const spoke = useRef(false);
   const at = useRef<{ x: number | null; side: Side }>({ x: null, side: "right" });
 
   function spots() {
@@ -80,6 +81,7 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
   }
 
   function say(text: string) {
+    spoke.current = true;
     window.clearTimeout(timer.current);
     setTalking(text);
     play("talk");
@@ -99,35 +101,47 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
 
   useEffect(() => {
     still.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    for (const name of MODES) {
-      const video = document.createElement("video");
-      video.src = `${BASE_PATH}/avatar/${name}.mp4`;
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
-      video.preload = "auto";
-      video.setAttribute("aria-hidden", "true");
-      videos.current[name] = video;
-    }
     const list = videos.current;
-
     let frame = 0;
-    let last = -1;
-    let lastMode: Mode | null = null;
-    const draw = () => {
+    let wait = 0;
+
+    const begin = () => {
+      for (const name of MODES) {
+        const video = document.createElement("video");
+        video.src = `${BASE_PATH}/avatar/${name}.mp4`;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.preload = "auto";
+        video.setAttribute("aria-hidden", "true");
+        videos.current[name] = video;
+      }
+      let last = -1;
+      let lastMode: Mode | null = null;
+      const draw = () => {
+        frame = requestAnimationFrame(draw);
+        const video = list[mode.current];
+        const ctx = canvas.current?.getContext("2d", { willReadFrequently: true });
+        if (!video || !ctx || video.readyState < 2) return;
+        if (video.currentTime === last && mode.current === lastMode) return;
+        last = video.currentTime;
+        lastMode = mode.current;
+        const { width, height: h } = ctx.canvas;
+        ctx.clearRect(0, 0, width, h);
+        ctx.drawImage(video, 0, 0, width, h);
+        key(ctx, width, h);
+      };
       frame = requestAnimationFrame(draw);
-      const video = list[mode.current];
-      const ctx = canvas.current?.getContext("2d", { willReadFrequently: true });
-      if (!video || !ctx || video.readyState < 2) return;
-      if (video.currentTime === last && mode.current === lastMode) return;
-      last = video.currentTime;
-      lastMode = mode.current;
-      const { width, height: h } = ctx.canvas;
-      ctx.clearRect(0, 0, width, h);
-      ctx.drawImage(video, 0, 0, width, h);
-      key(ctx, width, h);
+      wait = window.setTimeout(() => {
+        if (!spoke.current) walkTo("right", () => say(GREETING));
+      }, 600);
     };
-    frame = requestAnimationFrame(draw);
+
+    const kick = () => {
+      wait = window.setTimeout(begin, 1500);
+    };
+    if (document.readyState === "complete") kick();
+    else window.addEventListener("load", kick, { once: true });
 
     const focus = (event: FocusEvent) => setTyping(event.target instanceof HTMLInputElement);
     const blur = () => setTyping(false);
@@ -136,6 +150,8 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
 
     return () => {
       cancelAnimationFrame(frame);
+      window.clearTimeout(wait);
+      window.removeEventListener("load", kick);
       window.clearTimeout(timer.current);
       document.removeEventListener("focusin", focus);
       document.removeEventListener("focusout", blur);
@@ -144,11 +160,6 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
         video?.removeAttribute("src");
       }
     };
-  }, []);
-
-  useEffect(() => {
-    const start = window.setTimeout(() => walkTo("right", () => say(GREETING)), 600);
-    return () => window.clearTimeout(start);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -168,7 +179,7 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
         className="pointer-events-none fixed bottom-[76px] left-0 z-30 h-[min(34vh,280px)] aspect-[258/480]"
         style={{
           opacity: away || x === null ? 0 : 1,
-          transform: `translateX(${x ?? 0}px)`,
+          transform: x === null ? "translateX(100vw)" : `translateX(${x}px)`,
           transition: `transform ${walkMs}ms linear, opacity 300ms`,
         }}
       >
