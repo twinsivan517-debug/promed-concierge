@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import photo from "@/assets/akanksha.webp";
 import { ANSWERS, CLINIC, type Answer } from "@/lib/answers";
 import { match, type Reply } from "@/lib/match";
+import { BASE_PATH } from "@/lib/site";
 
 type Message = { id: number; from: "patient" | "clinic"; text: string; reply?: Reply };
 
@@ -25,17 +26,30 @@ function replyText(reply: Reply) {
 }
 
 function Clip({ answer }: { answer: Answer }) {
+  const video = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    video.current?.play().catch(() => {});
+  }, [answer]);
+
   if (answer.clip) {
     return (
-      <video
-        key={answer.id}
-        src={answer.clip}
-        poster={photo.src}
-        controls
-        playsInline
-        preload="metadata"
-        className="aspect-[4/5] w-full rounded-3xl bg-panel object-cover"
-      />
+      <div className="relative">
+        <video
+          ref={video}
+          key={answer.id}
+          src={`${BASE_PATH}/${answer.clip}`}
+          poster={`${BASE_PATH}/clips/presenter.jpg`}
+          controls
+          playsInline
+          preload="metadata"
+          aria-label={`Video answer: ${answer.question}`}
+          className="aspect-[4/5] w-full rounded-3xl bg-panel object-cover"
+        />
+        <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-ground/75 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-pink">
+          Sample avatar, not {CLINIC.doctor}
+        </span>
+      </div>
     );
   }
   return (

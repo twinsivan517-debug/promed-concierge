@@ -36,11 +36,11 @@ export const ANSWERS: Answer[] = [
     short: "How long Botox lasts",
     question: "How long does Botox last?",
     answer:
-      "Usually three to four months for forehead and crow's feet lines. A lip flip lasts two to three months. When it wears off, your lines return to how they would have looked otherwise.",
+      "Botox usually lasts three to four months for forehead and crow's feet lines. A lip flip lasts two to three months. When it wears off, your lines simply return to how they would have looked otherwise.",
     keywords: ["botox", "anti wrinkle", "wrinkle", "forehead", "crow's feet", "crows feet", "lip flip", "wear off", "permanent", "last", "lasting"],
     source: `${SITE}/services/forehead-crowsfeet (FAQ; the same page's card says 4-6 months: the doctor picks one)`,
     draft: true,
-    clip: null,
+    clip: "clips/botox-duration.mp4",
   },
   {
     id: "natural",
