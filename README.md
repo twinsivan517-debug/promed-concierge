@@ -20,6 +20,8 @@ A static export (`out/`) under the base path `/promed-concierge`, published to G
 by `.github/workflows/pages.yml` on every push to `main`:
 https://twinsivan517-debug.github.io/promed-concierge/ . Images are imported from
 `src/assets/` so the base path reaches them; a plain `/file` path would miss it.
+`npm run start` serves `out/` the same way (`scripts/serve-out.mjs`), so the ship gate measures
+the page at its real address.
 
 ## The ship gate
 
@@ -39,4 +41,4 @@ the export, so a new site never starts with this starter's stamp.
 
     npm run dev      work on it
     npm run build    build it
-    npm run start    serve the build
+    npm run start    serve the build under /promed-concierge
