@@ -1,13 +1,13 @@
 {
-  "commit": "588b90fe8b8d17a6f70918254acee8ca789004d7",
-  "tier": "static",
+  "commit": "796b1b762e2ac42a87244e5d85a1f1822eec017e",
+  "tier": "motion",
   "scores": {
     "performance": 97,
     "accessibility": 100,
     "best-practices": 100,
     "seo": 100
   },
-  "bytes": 238577,
+  "bytes": 444904,
   "story_bytes": 0,
-  "at": "2026-10-16T08:46:18Z"
+  "at": "2026-10-16T09:48:27Z"
 }
