@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { painter, type Painter } from "@/lib/chroma";
 import { BASE_PATH } from "@/lib/site";
 
 type Mode = "idle" | "walk" | "talk";
@@ -14,23 +15,6 @@ const GREETING = "Hi! Ask me anything about your treatment, I'm here to help.";
 
 function talkTime(text: string) {
   return Math.min(9000, Math.max(2500, text.length * 55));
-}
-
-function key(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  const image = ctx.getImageData(0, 0, width, height);
-  const px = image.data;
-  for (let i = 0; i < px.length; i += 4) {
-    const r = px[i];
-    const g = px[i + 1];
-    const b = px[i + 2];
-    const most = r > b ? r : b;
-    const green = g - most;
-    if (green > 0) {
-      px[i + 1] = most;
-      px[i + 3] = green >= 100 ? 0 : green <= 30 ? 255 : Math.round(255 * (1 - (green - 30) / 70));
-    }
-  }
-  ctx.putImageData(image, 0, 0);
 }
 
 export function FloatingAvatar({ line }: { line: Line | null }) {
@@ -118,18 +102,15 @@ export function FloatingAvatar({ line }: { line: Line | null }) {
       }
       let last = -1;
       let lastMode: Mode | null = null;
+      const paint: Painter | null = canvas.current ? painter(canvas.current) : null;
       const draw = () => {
         frame = requestAnimationFrame(draw);
         const video = list[mode.current];
-        const ctx = canvas.current?.getContext("2d", { willReadFrequently: true });
-        if (!video || !ctx || video.readyState < 2) return;
+        if (!video || !paint || video.readyState < 2) return;
         if (video.currentTime === last && mode.current === lastMode) return;
         last = video.currentTime;
         lastMode = mode.current;
-        const { width, height: h } = ctx.canvas;
-        ctx.clearRect(0, 0, width, h);
-        ctx.drawImage(video, 0, 0, width, h);
-        key(ctx, width, h);
+        paint(video);
       };
       frame = requestAnimationFrame(draw);
       wait = window.setTimeout(() => {
