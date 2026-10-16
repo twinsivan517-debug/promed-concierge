@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import logo from "@/assets/logo.png";
 import { Concierge } from "@/components/Concierge";
 import { CLINIC } from "@/lib/answers";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+export const metadata: Metadata = { alternates: { canonical: `${SITE.url}/` } };
 
 const WRAP = "mx-auto w-full max-w-lg px-5";
 
@@ -17,7 +18,7 @@ export default function Home() {
 
       <header className={`${WRAP} flex items-center justify-between pt-5`}>
         <span className="flex items-center gap-3">
-          <Image src="/logo.png" alt="" width={36} height={32} />
+          <Image src={logo} alt="" width={36} height={32} />
           <span className="text-base font-bold uppercase tracking-wider text-pink">Promed Aesthetics</span>
         </span>
         {CLINIC.instagram && (

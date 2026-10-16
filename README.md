@@ -14,6 +14,13 @@ WhatsApp message the patient sends. No server, no stored data, no running cost. 
 - `src/lib/match.test.ts` — `npm test`: 53 real questions, medical ones must reach the doctor
   hand-off. Run it after any change to the answers or the matcher.
 
+## Where it is published
+
+A static export (`out/`) under the base path `/promed-concierge`, published to GitHub Pages
+by `.github/workflows/pages.yml` on every push to `main`:
+https://twinsivan517-debug.github.io/promed-concierge/ . Images are imported from
+`src/assets/` so the base path reaches them; a plain `/file` path would miss it.
+
 ## The ship gate
 
 

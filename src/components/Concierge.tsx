@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import photo from "@/assets/akanksha.webp";
 import { ANSWERS, CLINIC, type Answer } from "@/lib/answers";
 import { match, type Reply } from "@/lib/match";
 
@@ -29,7 +30,7 @@ function Clip({ answer }: { answer: Answer }) {
       <video
         key={answer.id}
         src={answer.clip}
-        poster="/akanksha.webp"
+        poster={photo.src}
         controls
         playsInline
         preload="metadata"
@@ -40,7 +41,7 @@ function Clip({ answer }: { answer: Answer }) {
   return (
     <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-panel">
       <Image
-        src="/akanksha.webp"
+        src={photo}
         alt={`${CLINIC.doctor} at ${CLINIC.name}`}
         fill
         sizes="(max-width: 512px) 100vw, 472px"
