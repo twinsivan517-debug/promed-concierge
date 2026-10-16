@@ -96,16 +96,20 @@ export function Concierge() {
         ))}
       </ul>
 
-      <section aria-label="Your concierge" className="mt-5 grid grid-cols-[38%_1fr] items-start gap-3">
-        <div className="sticky top-3">
-          <DoctorAvatar line={line} onPoke={poke} />
-        </div>
-        <div className="min-w-0 space-y-3">
-          <div aria-live="polite" className="relative rounded-2xl rounded-tl-sm bg-pink px-4 py-3 text-ink shadow-lg">
-            <span className="mb-1 block text-xs font-bold">Dr. Akanksha</span>
-            <p className="text-sm leading-snug">{line.text}</p>
+      <section aria-label="Your concierge" className="mt-5">
+        <div aria-live="polite" className="mr-6">
+          <div key={line.id} className="speech relative rounded-[1.75rem] bg-pink px-5 py-4 text-ink shadow-lg">
+            <p className="text-[0.95rem] leading-snug">{line.text}</p>
+            <span aria-hidden="true" className="absolute -bottom-3 left-[15%] size-6 rotate-45 rounded-br-md bg-pink" />
           </div>
-          <InfoCard reply={reply} onPick={pick} onBook={() => booking.current?.showModal()} suggestions={SUGGESTIONS} />
+        </div>
+        <div className="mt-4 grid grid-cols-[38%_1fr] items-start gap-3">
+          <div className="sticky top-3">
+            <DoctorAvatar line={line} onPoke={poke} />
+          </div>
+          <div className="min-w-0">
+            <InfoCard reply={reply} onPick={pick} onBook={() => booking.current?.showModal()} suggestions={SUGGESTIONS} />
+          </div>
         </div>
       </section>
 
